@@ -4,32 +4,41 @@ using UnityEngine;
 
 namespace Kogane.Internal
 {
-	[CustomEditor( typeof( DefaultAsset ) )]
-	internal sealed class LayoutAssetInspector : Editor
-	{
-		public override void OnInspectorGUI()
-		{
-			var defaultAsset = ( DefaultAsset ) target;
-			var assetPath    = AssetDatabase.GetAssetPath( defaultAsset );
-			var extension    = Path.GetExtension( assetPath );
+    [InitializeOnLoad]
+    internal sealed class LayoutAssetInspector : IDefaultAssetInspector
+    {
+        static LayoutAssetInspector()
+        {
+            DefaultAssetInspector.Add( new LayoutAssetInspector() );
+        }
 
-			if ( !extension.EndsWith( ".wlt" ) ) return;
+        void IDefaultAssetInspector.OnInspectorGUI( Object target )
+        {
+            var defaultAsset = ( DefaultAsset )target;
+            var assetPath    = AssetDatabase.GetAssetPath( defaultAsset );
+            var extension    = Path.GetExtension( assetPath );
 
-			var oldEnabled = GUI.enabled;
-			GUI.enabled = true;
+            if ( !extension.EndsWith( ".wlt" ) ) return;
 
-			if ( GUILayout.Button( "Load" ) )
-			{
-				var assembly   = typeof( Editor ).Assembly;
-				var type       = assembly.GetType( "UnityEditor.WindowLayout" );
-				var methodInfo = type.GetMethod( "LoadWindowLayout", new[] { typeof( string ), typeof( bool ) } );
+            var oldEnabled = GUI.enabled;
+            GUI.enabled = true;
 
-				var fullPath = Path.GetFullPath( assetPath );
+            try
+            {
+                if ( GUILayout.Button( "Load" ) )
+                {
+                    var assembly   = typeof( Editor ).Assembly;
+                    var type       = assembly.GetType( "UnityEditor.WindowLayout" );
+                    var methodInfo = type.GetMethod( "LoadWindowLayout", new[] { typeof( string ), typeof( bool ) } );
+                    var fullPath   = Path.GetFullPath( assetPath );
 
-				methodInfo.Invoke( null, new object[] { fullPath, false } );
-			}
-
-			GUI.enabled = oldEnabled;
-		}
-	}
+                    methodInfo.Invoke( null, new object[] { fullPath, false } );
+                }
+            }
+            finally
+            {
+                GUI.enabled = oldEnabled;
+            }
+        }
+    }
 }
