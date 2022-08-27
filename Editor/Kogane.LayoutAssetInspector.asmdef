@@ -2,8 +2,7 @@
     "name": "Kogane.LayoutAssetInspector",
     "rootNamespace": "",
     "references": [
-        "GUID:38ccf134f0b01834e9858f9a64300a47",
-        "Kogane.DefaultAssetInspector"
+        "GUID:38ccf134f0b01834e9858f9a64300a47"
     ],
     "includePlatforms": [
         "Editor"
